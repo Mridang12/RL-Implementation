@@ -1,5 +1,5 @@
 # RL-Implementation
-Wrote a DQN agent for another project, reusing here to see how far I can push DQN algorithm on different environments
+Wrote a DQN agent for another project, reusing here to see how far I can push DQN algorithm on different environments.
 
 DQN stands for Deep Q Learning, which is a technique that improves on the massive memory requirements of vanilla Q Learning by estimating the Q(s,a) value pairs for each action from a given state using Neural Networks. But given the nature of Reinforcement Learning, where the agent does not have information about its environment, trying to 'fit' the neural network becomes difficult since we do not have a set "target" value to fit towards. To solve this problem, Deep Q Learning maintains two different neural networks, one that predicts the Q values to form a policy, and the other that provides estimated "targets" to train towards. To make training more stable, remove the correlation between recent (state, action, reward) pairs and to reuse past experiences, a technique called Experience Replay is also used here. 
 
@@ -9,7 +9,7 @@ To learn more about Deep Q Learning, I recommend reading this article [here.](ht
 
     -- PyTorch
     -- Numpy
-    -- Cuda for PyTorch (Not Required by Highly Recommended)
+    -- Cuda for PyTorch (Not Required but Highly Recommended)
 
 # Usage
 
