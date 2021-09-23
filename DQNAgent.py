@@ -29,7 +29,7 @@ class ExperienceReplay():
         rewards = [x.reward for x in sample]
         dones = [x.done for x in sample]
 
-        return torch.stack(states), torch.stack(actions).unsqueeze(1), torch.stack(n_states), torch.stack(rewards), torch.stack(dones).unsqueeze(1) 
+        return torch.stack(states), torch.stack(actions).unsqueeze(1), torch.stack(n_states), torch.stack(rewards).unsqueeze(1), torch.stack(dones).unsqueeze(1) 
 
 
     def __len__(self):
@@ -56,7 +56,7 @@ class Net(nn.Module):
 #DQN Agent
 class DQNAgent():
 
-    def __init__(self,layerSizes, epsilon, eps_decay, mem_size, batch_size, discount_fact, update_freq, target_update_freq, lr, num_actions):
+    def __init__(self,layerSizes, epsilon, eps_decay, min_eps, mem_size, batch_size, discount_fact, update_freq, target_update_freq, lr, num_actions):
         self.mem_size = mem_size
         self.batch_size = batch_size
         self.discount_fact = discount_fact
@@ -67,6 +67,7 @@ class DQNAgent():
         self.epsilon = epsilon
         self.action_space = num_actions
         self.decay_rate = eps_decay
+        self.min_eps = min_eps
 
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.policyNet = Net(self.layerSizes).to(self.device)
@@ -102,12 +103,12 @@ class DQNAgent():
                                     tensor(reward, device=self.device).float(),
                                     tensor(done, device = self.device)))
 
-        
         self.t_step += 1
         if self.t_step % self.update_freq == 0:
             self.t_step = 0
             if len(self.replay) > self.batch_size:
-                self.epsilon = max(self.epsilon * self.decay_rate, 0.1)
+                if self.epsilon > 0:
+                    self.epsilon = max(self.epsilon * self.decay_rate, self.min_eps)
                 self.train()
 
         self.target_step += 1
