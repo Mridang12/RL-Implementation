@@ -48,7 +48,7 @@ Every timestep of the environment:
 
 # Example training CartPole-v0 env from openAI gym
 
-```
+```python
 import gym
 from DQNAgent import DQNAgent
 import numpy as np
