@@ -55,7 +55,7 @@ class Net(nn.Module):
 #DQN Agent
 class DQNAgent():
 
-    def __init__(self,layerSizes, epsilon, eps_decay, min_eps, mem_size, batch_size, discount_fact, update_freq, target_update_freq, lr, num_actions):
+    def __init__(self,layerSizes, epsilon, eps_decay, min_eps, mem_size, batch_size, discount_fact, update_freq, target_update_freq, lr, num_actions, start_training_after):
         self.mem_size = mem_size
         self.batch_size = batch_size
         self.discount_fact = discount_fact
@@ -67,6 +67,10 @@ class DQNAgent():
         self.action_space = num_actions
         self.decay_rate = eps_decay
         self.min_eps = min_eps
+        self.start_training_after = start_training_after
+
+        assert self.mem_size >= self.start_training_after, "mem_size must be greater than or equal to start_training_after"
+        assert self.mem_size >= self.batch_size, "mem_size must be greater than or equal to batch_size"
 
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.policyNet = Net(self.layerSizes).to(self.device)
@@ -74,7 +78,7 @@ class DQNAgent():
         
         #Using optim.Adam might be a better idea but Gradient Descent works okay too
         #GD Might need more episodes to convert
-        self.optimizer = optim.SGD(self.policyNet.parameters(), lr = self.lr)
+        self.optimizer = optim.Adam(self.policyNet.parameters(), lr = self.lr)
         
         self.replay = ExperienceReplay(self.mem_size)
         self.t_step = 0
@@ -102,14 +106,16 @@ class DQNAgent():
                                     tensor(reward, device=self.device).float(),
                                     tensor(done, device = self.device)))
 
+        if len(self.replay) < self.start_training_after:
+            return
+
         self.t_step += 1
         if self.t_step % self.update_freq == 0:
             self.t_step = 0
-            if len(self.replay) > self.batch_size:
-                if self.epsilon > 0:
-                    self.epsilon = max(self.epsilon * self.decay_rate, self.min_eps)
+            if len(self.replay) >= self.batch_size:
                 self.train()
-
+        if done == 1 and self.epsilon > 0:
+            self.epsilon = max(self.epsilon * self.decay_rate, self.min_eps)
         self.target_step += 1
         if self.target_step % self.target_update_freq == 0:
             self.target_step = 0
@@ -117,7 +123,7 @@ class DQNAgent():
 
     def train(self):
         states, actions, next_states, rewards, dones = self.replay.sample(self.batch_size)
-        criterion = nn.SmoothL1Loss()
+        criterion = nn.MSELoss()
 
         predictions = self.policyNet(states).gather(1, actions)
 

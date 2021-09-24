@@ -1,5 +1,5 @@
 # RL-Implementation
-Wrote a DQN agent for another project, reusing here to see how far I can push DQN algorithm on different environments.
+Wrote a DQN agent for flappy bird, reusing here to see how far I can push the DQN algorithm on different environments. So far I have tried using it on CartPole-v0 and LunarLander-v2, and it converges for both after tuning hyperparameters :)
 
 DQN stands for Deep Q Learning, which is a technique that improves on the massive memory requirements of vanilla Q Learning by estimating the Q(s,a) value pairs for each action from a given state using Neural Networks. But given the nature of Reinforcement Learning, where the agent does not have information about its environment, trying to 'fit' the neural network becomes difficult since we do not have a set "target" value to fit towards. To solve this problem, Deep Q Learning maintains two different neural networks, one that predicts the Q values to form a policy, and the other that provides estimated "targets" to train towards. To make training more stable, remove the correlation between recent (state, action, reward) pairs and to reuse past experiences, a technique called Experience Replay is also used here. 
 
@@ -17,11 +17,11 @@ The DQN Agent is pretty much plug and play. The agent outputs a discrete action 
 
 It takes in the following parameters:
 
-    1. layerSizes: The sizes of the Neural Network layers as a list. Typically you would want to input [len(state), ... , len(action_space)]
+    1. layerSizes: The sizes of the Neural Network layers as a list. Typically you would want to input [len(state), ... , len(action_space)].
 
     2. epsilon : A start value for the epsilon greedy policy. Recommended value = 1
 
-    3. eps_decay : Epsilon multiplier at each learning step to decay. value < 1.
+    3. eps_decay : Epsilon multiplier at the end of each episode. value < 1.
 
     4. min_eps : Minimum value beyond which epsilon will not decay.
 
@@ -29,15 +29,17 @@ It takes in the following parameters:
 
     6. batch_size : The size of the random batch taken from replay memory buffer to train on.
 
-    7. discount_factor
+    7. discount_factor : The gamma value for Q updates.
 
     8. update_freq : Policy Network will update every update_freq timesteps. 
 
     9. target_update_freq : Target Network will be refreshed with the weights of the policy network every target_update_freq timesteps.
 
-    10. lr : Learning rate for the Stochastic Gradient Descent Optimizer.
+    10. lr : Learning rate for the Adam Optimizer.
 
     11. num_actions : Size of the action_space. 
+
+    12. start_training_after : The agent will start training after this number of experiences has been collected.
 
 
 Every timestep of the environment:
@@ -95,3 +97,4 @@ while np.mean(last_n_scores) < 195:
 env.close()
 
 ```
+
