@@ -5,6 +5,9 @@ DQN stands for Deep Q Learning, which is a technique that improves on the massiv
 
 To learn more about Deep Q Learning, I recommend reading this article [here.](https://www.analyticsvidhya.com/blog/2019/04/introduction-deep-q-learning-python/)
 
+I have also added an implementation for Double DQN. This technique utilises the target network from DQN as the "second" Q network needed for Double Q Learning. The DoubleDQNAgent can be interfaced exactly the same way as the DQNAgent.
+
+
 # Dependencies 
 
     -- PyTorch
@@ -13,7 +16,7 @@ To learn more about Deep Q Learning, I recommend reading this article [here.](ht
 
 # Usage
 
-The DQN Agent is pretty much plug and play. The agent outputs a discrete action space [0, n-1]
+The DQN and Double DQN agents are pretty much plug and play. An agent outputs a discrete action space [0, n-1].
 
 It takes in the following parameters:
 
@@ -41,6 +44,8 @@ It takes in the following parameters:
 
     12. start_training_after : The agent will start training after this number of experiences has been collected.
 
+    13. LR_decay_rate (optional) : Decay rate for the learning rate. This hasn't been implemented into the training flow because it is very task dependant. Call agent.LR_decayer.step() to decay LR by the specified rate. 
+
 
 Every timestep of the environment:
 
@@ -56,10 +61,13 @@ from DQNAgent import DQNAgent
 import numpy as np
 
 #Change hyperparameters here
-agent = DQNAgent(layerSizes=[4, 64, 2],
+agent_DQN = DQNAgent(layerSizes=[4, 64, 2],
                 epsilon=1, eps_decay=0.9997,min_eps=0.001, batch_size=32, discount_fact=0.99, 
                  lr=0.15, num_actions=2, target_update_freq=10000, mem_size = 65000,
                     update_freq = 2)
+
+# To use Double DQN
+agent_DoubleDQN = DoubleDQNAgent(paramaters go here)
 
 env = gym.make('CartPole-v0')
 
